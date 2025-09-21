@@ -3,64 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>คลังโจทย์ฝึกทักษะ SQL v2.0</title>
+    <title>คลังโจทย์ฝึกทักษะ SQL v2.1 (มีธีม)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@700&family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Base Styles */
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #0f172a;
+            transition: background-color 0.3s, color 0.3s;
         }
         h1, #problem-indicator {
             font-family: 'Prompt', sans-serif;
         }
+
+        /* Dark Theme (Default) */
+        body {
+            background-color: #0f172a;
+            color: #d1d5db;
+        }
+        .card { background-color: #1e293b; }
+        .nav-card { background-color: #1e293b; }
+        .header-text { color: #ffffff; }
+        .subheader-text { color: #94a3b8; }
         .prose { color: #d1d5db; }
         .prose h1, .prose h2, .prose h3 { color: #ffffff; }
         .prose strong, .prose b { color: #f3f4f6; }
-        .prose code, b.code {
-            color: #f3f4f6;
-            background-color: #374151;
-            padding: 0.2em 0.4em;
-            margin: 0;
-            font-size: 85%;
-            border-radius: 6px;
-            font-family: monospace;
-        }
-        .prose pre {
-            background-color: #111827; border: 1px solid #374151;
-            border-radius: 8px; padding: 1rem;
-            white-space: pre-wrap; word-wrap: break-word;
-        }
-        .prose pre code { background-color: transparent; padding: 0; white-space: pre; }
-        .rating-star { color: #facc15; }
-        .score-heart { transition: all 0.3s ease-in-out; }
-        .sql-editor {
-            background-color: #020617; border: 1px solid #334155;
-            color: #e2e8f0; font-family: monospace; font-size: 14px;
-            border-radius: 8px; padding: 1rem; height: 180px; resize: vertical;
-        }
-        .results-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .results-table th, .results-table td { border: 1px solid #475569; padding: 6px 8px; text-align: left; }
-        .results-table th { background-color: #334155; font-weight: bold; color: #cbd5e1; }
+        .prose code, b.code { color: #f3f4f6; background-color: #374151; }
+        .prose pre { background-color: #111827; border: 1px solid #374151; white-space: pre-wrap; word-wrap: break-word; }
+        .prose pre code { background-color: transparent; padding: 0; white-space: pre-wrap; } /* <-- FIXED: Changed to pre-wrap */
+        .sql-editor { background-color: #020617; border: 1px solid #334155; color: #e2e8f0; }
+        .results-table th { background-color: #334155; color: #cbd5e1; }
         .results-table tbody tr:nth-child(odd) { background-color: #1e293b; color: #e2e8f0; }
         .results-table tbody tr:nth-child(even) { background-color: #28364a; color: #e2e8f0; }
+        .results-area-bg { background-color: #111827; }
+        .level-nav-btn { color: #94a3b8; }
+        .level-nav-btn.active { color: white; border-bottom-color: #3b82f6; }
+        .accordion-item { background-color: #374151; }
+        .accordion-summary { color: #ffffff; }
+
+        /* Light Theme */
+        body.light {
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+        body.light .card { background-color: #ffffff; border: 1px solid #e2e8f0; }
+        body.light .nav-card { background-color: #ffffff; }
+        body.light .header-text { color: #1e293b; }
+        body.light .subheader-text { color: #475569; }
+        body.light .prose { color: #334155; }
+        body.light .prose h1, body.light .prose h2, body.light .prose h3 { color: #1e293b; }
+        body.light .prose strong, body.light .prose b { color: #0f172a; }
+        body.light .prose code, body.light b.code { color: #1e293b; background-color: #e2e8f0; }
+        body.light .prose pre { background-color: #f8fafc; border: 1px solid #e2e8f0; }
+        body.light .sql-editor { background-color: #f8fafc; border: 1px solid #cbd5e1; color: #1e293b; }
+        body.light .results-table th { background-color: #e2e8f0; color: #1e293b; }
+        body.light .results-table tbody tr:nth-child(odd) { background-color: #ffffff; color: #1e293b; }
+        body.light .results-table tbody tr:nth-child(even) { background-color: #f8fafc; color: #1e293b; }
+        body.light .results-area-bg { background-color: #f8fafc; }
+        body.light .level-nav-btn { color: #475569; }
+        body.light .level-nav-btn.active { color: #1e293b; border-bottom-color: #3b82f6; }
+        body.light .accordion-item { background-color: #f1f5f9; }
+        body.light .accordion-summary { color: #1e293b; }
+        
+        /* Common styles */
+        .rating-star { color: #facc15; }
+        .score-heart { transition: all 0.3s ease-in-out; }
+        .results-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .results-table th, .results-table td { border: 1px solid #475569; padding: 6px 8px; text-align: left; }
         #db-loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.8); color: white;
             display: flex; justify-content: center; align-items: center;
             font-size: 1.5rem; z-index: 9999;
         }
-        .level-nav-btn {
-            transition: all 0.3s ease;
-            border-bottom: 4px solid transparent;
-        }
-        .level-nav-btn.active {
-            border-bottom-color: #3b82f6;
-            color: white;
-        }
+        .level-nav-btn { transition: all 0.3s ease; border-bottom: 4px solid transparent; }
         /* SQL Syntax Highlighting */
         .sql-keyword { color: #569cd6; font-weight: bold; }
         .sql-function { color: #dcdcaa; }
@@ -69,7 +88,7 @@
         .sql-operator { color: #d4d4d4; }
     </style>
 </head>
-<body class="text-gray-300">
+<body>
 
     <div id="db-loader">
         <div class="text-center">
@@ -79,21 +98,29 @@
     </div>
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="text-center mb-6">
-            <h1 class="text-4xl font-bold text-white mb-2">โจทย์ฝึกทักษะ SQL</h1>
-            <p class="text-lg text-gray-400">The Northwind Edition</p>
+        <header class="text-center mb-6 relative">
+            <h1 class="text-4xl font-bold header-text mb-2">โจทย์ฝึกทักษะ SQL</h1>
+            <p class="text-lg subheader-text">The Northwind Edition</p>
+            <button id="theme-toggle" class="absolute top-0 right-0 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 card">
+                <svg id="theme-icon-light" class="h-6 w-6 text-yellow-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.4-8.4h-1M4.6 12H3.6m15.2-4.2L18 7.2M6 18l.8.8M12 21a9 9 0 110-18 9 9 0 010 18z" />
+                </svg>
+                <svg id="theme-icon-dark" class="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
         </header>
 
-        <nav class="flex justify-center items-center mb-8 bg-gray-800 p-2 rounded-xl shadow-lg">
-            <button data-level="0" class="level-nav-btn text-gray-400 font-bold py-3 px-6 rounded-lg">ระดับที่ 1: พื้นฐาน</button>
-            <button data-level="1" class="level-nav-btn text-gray-400 font-bold py-3 px-6 rounded-lg">ระดับที่ 2: ปานกลาง</button>
-            <button data-level="2" class="level-nav-btn text-gray-400 font-bold py-3 px-6 rounded-lg">ระดับที่ 3: ขั้นสูง</button>
+        <nav class="flex justify-center items-center mb-8 p-2 rounded-xl shadow-lg nav-card">
+            <button data-level="0" class="level-nav-btn font-bold py-3 px-6 rounded-lg">ระดับที่ 1: พื้นฐาน</button>
+            <button data-level="1" class="level-nav-btn font-bold py-3 px-6 rounded-lg">ระดับที่ 2: ปานกลาง</button>
+            <button data-level="2" class="level-nav-btn font-bold py-3 px-6 rounded-lg">ระดับที่ 3: ขั้นสูง</button>
         </nav>
         
         <div id="problem-area" class="hidden">
-            <nav class="flex justify-between items-center mb-8 bg-gray-800 p-4 rounded-xl shadow-lg">
+            <nav class="flex justify-between items-center mb-8 p-4 rounded-xl shadow-lg nav-card">
                 <button id="prevBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">&lt; ข้อก่อนหน้า</button>
-                <div id="problem-indicator" class="text-2xl font-bold text-white">ข้อ 1 / 20</div>
+                <div id="problem-indicator" class="text-2xl font-bold header-text">ข้อ 1 / 20</div>
                 <button id="nextBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">ข้อถัดไป &gt;</button>
             </nav>
         </div>
@@ -104,7 +131,7 @@
     </div>
 
     <template id="problem-template">
-        <section class="bg-gray-800 rounded-xl shadow-lg p-6 prose max-w-none">
+        <section class="rounded-xl shadow-lg p-6 prose max-w-none card">
             <div class="flex justify-between items-start">
                 <div>
                     <h2 class="text-2xl font-bold mt-0">โจทย์หลัก (Query Task)</h2>
@@ -114,31 +141,31 @@
             </div>
         </section>
         
-        <section class="bg-gray-800 rounded-xl shadow-lg p-6 prose max-w-none">
+        <section class="rounded-xl shadow-lg p-6 prose max-w-none card">
             <h2 class="text-2xl font-bold mt-0">โครงสร้างตาราง (Schema) ที่เกี่ยวข้อง</h2>
             <div id="schema-accordion" class="space-y-2"></div>
         </section>
 
-        <section class="bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 class="text-2xl font-bold text-white mb-4">เครื่องมือทดสอบ Query</h2>
+        <section class="rounded-xl shadow-lg p-6 card">
+            <h2 class="text-2xl font-bold header-text mb-4">เครื่องมือทดสอบ Query</h2>
             <div>
-                <label for="sql-editor" class="block text-sm font-medium text-gray-300 mb-2">พิมพ์คำสั่ง SQL ของคุณที่นี่:</label>
+                <label for="sql-editor" class="block text-sm font-medium subheader-text mb-2">พิมพ์คำสั่ง SQL ของคุณที่นี่:</label>
                 <textarea id="sql-editor" class="sql-editor w-full" spellcheck="false"></textarea>
                 <button id="runQueryBtn" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-300">Run Query</button>
             </div>
             <div class="space-y-6 mt-6">
                 <div>
-                    <h3 class="text-xl font-bold text-white mb-2">ผลลัพธ์ของคุณ (Your Result)</h3>
-                    <div id="user-result-area" class="bg-gray-900 p-2 rounded-lg min-h-[200px] max-h-[300px] overflow-auto"></div>
+                    <h3 class="text-xl font-bold header-text mb-2">ผลลัพธ์ของคุณ (Your Result)</h3>
+                    <div id="user-result-area" class="p-2 rounded-lg min-h-[200px] max-h-[300px] overflow-auto results-area-bg"></div>
                 </div>
                 <div>
-                    <h3 class="text-xl font-bold text-white mb-2">ผลลัพธ์ที่คาดหวัง (Expected Output)</h3>
-                    <div id="expected-result-area" class="bg-gray-900 p-2 rounded-lg min-h-[200px] max-h-[300px] overflow-auto"></div>
+                    <h3 class="text-xl font-bold header-text mb-2">ผลลัพธ์ที่คาดหวัง (Expected Output)</h3>
+                    <div id="expected-result-area" class="p-2 rounded-lg min-h-[200px] max-h-[300px] overflow-auto results-area-bg"></div>
                 </div>
             </div>
         </section>
         
-        <section class="bg-gray-800 rounded-xl shadow-lg p-6 prose max-w-none">
+        <section class="rounded-xl shadow-lg p-6 prose max-w-none card">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold mt-0 mb-0">คำใบ้และเฉลย</h2>
                 <div id="scoreContainer" class="flex gap-2 items-center"></div>
@@ -175,20 +202,20 @@
         const allProblems = [
             // Level 1: Basic (20 problems)
             [
-                { title: "แสดงข้อมูลลูกค้าทั้งหมด", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลทั้งหมดของ<b>ลูกค้า</b>", relatedTables: ['Customers'], solution: "SELECT * FROM Customers;", hints: [{text: "ใช้ `SELECT *` เพื่อเลือกทุกคอลัมน์"}, {text:"ใช้ `FROM` เพื่อระบุตาราง"}] },
-                { title: "แสดงชื่อและราคาของสินค้า", rating: 1, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อสินค้า</b> และ <b>ราคา</b>", relatedTables: ['Products'], solution: "SELECT ProductName, Price FROM Products;", hints: [{text: "ระบุชื่อคอลัมน์หลัง `SELECT`"}, {text:"คั่นชื่อคอลัมน์ด้วยจุลภาค (,)"}] },
-                { title: "แสดงข้อมูลพนักงานทั้งหมด", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลทั้งหมดของ<b>พนักงาน</b>", relatedTables: ['Employees'], solution: "SELECT * FROM Employees;", hints: [{text:"ใช้ `SELECT *` และ `FROM Employees`"}] },
-                { title: "แสดงชื่อและเบอร์โทรศัพท์ของบริษัทขนส่ง", rating: 1, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อบริษัทขนส่ง</b> และ <b>เบอร์โทรศัพท์</b>", relatedTables: ['Shippers'], solution: "SELECT ShipperName, Phone FROM Shippers;", hints: [{text: "เลือกคอลัมน์ `ShipperName` และ `Phone`"}] },
-                { title: "แสดงรายชื่อหมวดหมู่สินค้าทั้งหมด", rating: 1, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อหมวดหมู่</b>ทั้งหมด", relatedTables: ['Categories'], solution: "SELECT CategoryName FROM Categories;", hints: [{text: "เลือกคอลัมน์ `CategoryName` จากตาราง `Categories`"}] },
+                { title: "แสดงข้อมูลลูกค้าทั้งหมด", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลทั้งหมดของ<b>ลูกค้า</b>", relatedTables: ['Customers'], solution: "SELECT * FROM Customers;", hints: [{text: "ใช้ `SELECT *` เพื่อเลือกทุกคอลัมน์"}, {text:"ใช้ `FROM` เพื่อระบุตาราง"}, {text:"คำสั่งพื้นฐานประกอบด้วย `SELECT` และ `FROM`"}, {text:"อย่าลืมปิดท้ายคำสั่งด้วย Semicolon (`;`)"}, {text:"ตารางที่โจทย์ต้องการคือ `Customers`"}] },
+                { title: "แสดงชื่อและราคาของสินค้า", rating: 1, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อสินค้า</b> และ <b>ราคา</b>", relatedTables: ['Products'], solution: "SELECT ProductName, Price FROM Products;", hints: [{text: "ระบุชื่อคอลัมน์หลัง `SELECT`"}, {text:"คั่นชื่อคอลัมน์ด้วยจุลภาค (,)"}, {text:"คอลัมน์ที่ต้องการคือ `ProductName` และ `Price`"}, {text:"ตารางที่ต้องการคือ `Products`"}, {text:"อย่าลืมคำสั่ง `FROM`"}] },
+                { title: "แสดงข้อมูลพนักงานทั้งหมด", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลทั้งหมดของ<b>พนักงาน</b>", relatedTables: ['Employees'], solution: "SELECT * FROM Employees;", hints: [{text:"ใช้ `SELECT *`"}, {text:"ตารางที่ต้องการคือ `Employees`"}, {text:"คำสั่ง SQL ไม่สนใจตัวพิมพ์เล็ก/ใหญ่ (case-insensitive)"}, {text:"เริ่มต้นด้วย `SELECT` เสมอ"}, {text:"จบคำสั่งด้วย `;`"}] },
+                { title: "แสดงชื่อและเบอร์โทรศัพท์ของบริษัทขนส่ง", rating: 1, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อบริษัทขนส่ง</b> และ <b>เบอร์โทรศัพท์</b>", relatedTables: ['Shippers'], solution: "SELECT ShipperName, Phone FROM Shippers;", hints: [{text: "เลือกคอลัมน์ `ShipperName` และ `Phone`"}, {text:"ระบุตาราง `Shippers`"}, {text:"ใช้จุลภาค (,) คั่นระหว่างชื่อคอลัมน์"}] },
+                { title: "แสดงรายชื่อหมวดหมู่สินค้าทั้งหมด", rating: 1, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อหมวดหมู่</b>ทั้งหมด", relatedTables: ['Categories'], solution: "SELECT CategoryName FROM Categories;", hints: [{text: "เลือกคอลัมน์ `CategoryName`"}, {text: "จากตาราง `Categories`"}] },
                 { title: "แสดงข้อมูลผู้จัดจำหน่ายทั้งหมด", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลทั้งหมดของ<b>ผู้จัดจำหน่าย</b>", relatedTables: ['Suppliers'], solution: "SELECT * FROM Suppliers;", hints: [{text: "ใช้ `SELECT *` และ `FROM Suppliers`"}] },
-                { title: "แสดงข้อมูลลูกค้า 5 คนแรก", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลของ<b>ลูกค้า</b> 5 คนแรก", relatedTables: ['Customers'], solution: "SELECT * FROM Customers LIMIT 5;", hints: [{text: "ใช้ `LIMIT` เพื่อจำกัดจำนวนแถว"}] },
-                { title: "แสดงประเทศของลูกค้าที่ไม่ซ้ำกัน", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงรายชื่อ<b>ประเทศ</b>ของลูกค้า โดยไม่ให้มีข้อมูลซ้ำ", relatedTables: ['Customers'], solution: "SELECT DISTINCT Country FROM Customers;", hints: [{text: "ใช้ `DISTINCT` เพื่อกรองข้อมูลที่ซ้ำกันออก"}] },
+                { title: "แสดงข้อมูลลูกค้า 5 คนแรก", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลของ<b>ลูกค้า</b> 5 คนแรก", relatedTables: ['Customers'], solution: "SELECT * FROM Customers LIMIT 5;", hints: [{text: "ใช้ `LIMIT` เพื่อจำกัดจำนวนแถว"}, {text: "`LIMIT` จะอยู่ท้ายสุดของคำสั่ง"}] },
+                { title: "แสดงประเทศของลูกค้าที่ไม่ซ้ำกัน", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงรายชื่อ<b>ประเทศ</b>ของลูกค้า โดยไม่ให้มีข้อมูลซ้ำ", relatedTables: ['Customers'], solution: "SELECT DISTINCT Country FROM Customers;", hints: [{text: "ใช้ `DISTINCT` เพื่อกรองข้อมูลที่ซ้ำกันออก"}, {text: "`DISTINCT` จะวางอยู่หลัง `SELECT`"}] },
                 { title: "แสดงชื่อลูกค้าและเมือง", rating: 1, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อลูกค้า</b>และ<b>เมือง</b>ของลูกค้าทั้งหมด", relatedTables: ['Customers'], solution: "SELECT CustomerName, City FROM Customers;", hints: [{text: "เลือกคอลัมน์ `CustomerName` และ `City`"}] },
                 { title: "แสดงข้อมูลสินค้าทั้งหมดในหมวดหมู่ที่ 1", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่อยู่ใน<b>หมวดหมู่ที่ 1</b>", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE CategoryID = 1;", hints: [{text: "ใช้ `WHERE` เพื่อกรองข้อมูล"}, {text: "เงื่อนไขคือ `CategoryID = 1`"}] },
                 { title: "แสดงชื่อและนามสกุลพนักงาน", rating: 1, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อ</b>และ<b>นามสกุล</b>ของพนักงานทั้งหมด", relatedTables: ['Employees'], solution: "SELECT FirstName, LastName FROM Employees;", hints: [{text: "เลือกคอลัมน์ `FirstName` และ `LastName`"}] },
                 { title: "แสดงข้อมูลคำสั่งซื้อทั้งหมด", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลทั้งหมดของ<b>คำสั่งซื้อ</b>", relatedTables: ['Orders'], solution: "SELECT * FROM Orders;", hints: [{text: "ใช้ `SELECT *` และ `FROM Orders`"}] },
                 { title: "แสดงรายละเอียดคำสั่งซื้อทั้งหมด", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลทั้งหมดของ<b>รายละเอียดคำสั่งซื้อ</b>", relatedTables: ['OrderDetails'], solution: "SELECT * FROM OrderDetails;", hints: [{text: "ใช้ `SELECT *` และ `FROM OrderDetails`"}] },
-                { title: "เปลี่ยนชื่อคอลัมน์ที่แสดงผล", rating: 1, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อลูกค้า</b> โดยเปลี่ยนชื่อคอลัมน์เป็น `ชื่อเต็มของลูกค้า`", relatedTables: ['Customers'], solution: "SELECT CustomerName AS 'ชื่อเต็มของลูกค้า' FROM Customers;", hints: [{text: "ใช้ `AS` เพื่อตั้งชื่อเล่น (alias) ให้คอลัมน์"}] },
+                { title: "เปลี่ยนชื่อคอลัมน์ที่แสดงผล", rating: 1, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อลูกค้า</b> โดยเปลี่ยนชื่อคอลัมน์เป็น `ชื่อเต็มของลูกค้า`", relatedTables: ['Customers'], solution: "SELECT CustomerName AS 'ชื่อเต็มของลูกค้า' FROM Customers;", hints: [{text: "ใช้ `AS` เพื่อตั้งชื่อเล่น (alias) ให้คอลัมน์"}, {text: "ถ้าชื่อใหม่มีเว้นวรรค ให้ครอบด้วย single quote ('...')"}] },
                 { title: "แสดงข้อมูลสินค้าที่ราคาต่ำกว่า 15", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่มีราคาต่ำกว่า 15", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE Price < 15;", hints: [{text: "ใช้ `WHERE` กับเครื่องหมาย `<`"}] },
                 { title: "แสดงข้อมูลลูกค้าจากประเทศ Mexico", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>ลูกค้า</b>ทั้งหมดที่มาจากประเทศ <b>Mexico</b>", relatedTables: ['Customers'], solution: "SELECT * FROM Customers WHERE Country = 'Mexico';", hints: [{text: "ค่าที่เป็นข้อความต้องอยู่ใน single quote ('...')"}] },
                 { title: "แสดงข้อมูลพนักงานที่เกิดก่อนปี 1960", rating: 1, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>พนักงาน</b>ทั้งหมดที่เกิดก่อนวันที่ '1960-01-01'", relatedTables: ['Employees'], solution: "SELECT * FROM Employees WHERE BirthDate < '1960-01-01';", hints: [{text: "SQLite สามารถเปรียบเทียบวันที่ในรูปแบบ 'YYYY-MM-DD'"}] },
@@ -198,40 +225,40 @@
             ],
             // Level 2: Medium (20 problems)
             [
-                { title: "ค้นหาลูกค้าจาก London หรือ Berlin", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลลูกค้าทั้งหมดที่อยู่ในเมือง <b>London</b> หรือ <b>Berlin</b>", relatedTables: ['Customers'], solution: "SELECT * FROM Customers WHERE City = 'London' OR City = 'Berlin';", hints: [{text:"ใช้ `WHERE` และ `OR`"}, {text:"อีกวิธีคือใช้ `IN ('London', 'Berlin')`"}] },
-                { title: "ค้นหาสินค้าที่ชื่อลงท้ายด้วย 'Syrup'", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่ชื่อลงท้ายด้วยคำว่า <b>Syrup</b>", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE ProductName LIKE '%Syrup';", hints: [{text: "ใช้ `LIKE`"}, {text: "ใช้ `%` ด้านหน้าคำที่ต้องการค้นหา"}] },
-                { title: "แสดงจำนวนลูกค้าทั้งหมด", rating: 2, mainProblem: "เขียน SQL เพื่อนับจำนวน<b>ลูกค้า</b>ทั้งหมด", relatedTables: ['Customers'], solution: "SELECT COUNT(*) FROM Customers;", hints: [{text: "ใช้ฟังก์ชัน `COUNT(*)`"}] },
-                { title: "แสดงราคาสินค้าเฉลี่ย", rating: 2, mainProblem: "เขียน SQL เพื่อคำนวณ<b>ราคาเฉลี่ย</b>ของสินค้าทั้งหมด", relatedTables: ['Products'], solution: "SELECT AVG(Price) FROM Products;", hints: [{text: "ใช้ฟังก์ชัน `AVG()`"}] },
-                { title: "แสดงยอดรวมจำนวนสินค้าที่สั่ง", rating: 2, mainProblem: "เขียน SQL เพื่อหาผลรวมของ<b>จำนวนสินค้า</b>ทั้งหมดที่เคยมีการสั่งซื้อ", relatedTables: ['OrderDetails'], solution: "SELECT SUM(Quantity) FROM OrderDetails;", hints: [{text: "ใช้ฟังก์ชัน `SUM()` กับคอลัมน์ `Quantity`"}] },
-                { title: "แสดงราคาสินค้าที่แพงที่สุดและถูกที่สุด", rating: 2, mainProblem: "เขียน SQL เพื่อแสดง<b>ราคาสินค้าที่แพงที่สุด</b> และ <b>ถูกที่สุด</b>", relatedTables: ['Products'], solution: "SELECT MAX(Price) AS HighestPrice, MIN(Price) AS LowestPrice FROM Products;", hints: [{text: "ใช้ฟังก์ชัน `MAX()` และ `MIN()`"}] },
-                { title: "แสดง 5 สินค้าที่ราคาถูกที่สุด", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b> 5 อันดับแรกที่มีราคาถูกที่สุด", relatedTables: ['Products'], solution: "SELECT * FROM Products ORDER BY Price ASC LIMIT 5;", hints: [{text: "ต้องใช้ `ORDER BY` และ `LIMIT` ร่วมกัน"}] },
-                { title: "ค้นหาสินค้าที่ราคาระหว่าง 20 ถึง 30", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่มีราคาอยู่ระหว่าง 20 ถึง 30", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE Price BETWEEN 20 AND 30;", hints: [{text: "ใช้ `BETWEEN ... AND ...`"}] },
-                { title: "ค้นหาลูกค้าที่ไม่ได้มาจาก USA หรือ Germany", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>ลูกค้า</b>ทั้งหมดที่ไม่ได้มาจากประเทศ <b>USA</b> หรือ <b>Germany</b>", relatedTables: ['Customers'], solution: "SELECT * FROM Customers WHERE Country NOT IN ('USA', 'Germany');", hints: [{text: "ใช้ `NOT IN`"}] },
-                { title: "แสดงชื่อผู้ติดต่อและชื่อเมืองของลูกค้าใน London", rating: 2, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อผู้ติดต่อ</b>และ<b>ชื่อเมือง</b>ของลูกค้าที่อยู่ใน <b>London</b>", relatedTables: ['Customers'], solution: "SELECT ContactName, City FROM Customers WHERE City = 'London';", hints: [{text: "เลือกคอลัมน์ที่ต้องการแล้วกรองด้วย `WHERE`"}] },
+                { title: "ค้นหาลูกค้าจาก London หรือ Berlin", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูลลูกค้าทั้งหมดที่อยู่ในเมือง <b>London</b> หรือ <b>Berlin</b>", relatedTables: ['Customers'], solution: "SELECT * FROM Customers WHERE City = 'London' OR City = 'Berlin';", hints: [{text:"ใช้ `WHERE` และ `OR`"}, {text:"อีกวิธีคือใช้ `IN ('London', 'Berlin')`"}, {text:"`OR` จะเป็นจริงถ้าเงื่อนไขใดเงื่อนไขหนึ่งเป็นจริง"}, {text:"`IN` ใช้ตรวจสอบว่าค่าอยู่ในกลุ่มที่กำหนดหรือไม่"}, {text:"อย่าลืมครอบชื่อเมืองด้วย single quote"}] },
+                { title: "ค้นหาสินค้าที่ชื่อลงท้ายด้วย 'Syrup'", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่ชื่อลงท้ายด้วยคำว่า <b>Syrup</b>", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE ProductName LIKE '%Syrup';", hints: [{text: "ใช้ `LIKE`"}, {text: "ใช้ `%` ด้านหน้าคำที่ต้องการค้นหา"}, {text: "รูปแบบคือ `LIKE '%Syrup'`"}, {text: "`%` คือ wildcard แทนข้อความใดๆ ก็ได้"}, {text: "`LIKE` ไม่สนใจตัวพิมพ์เล็ก/ใหญ่ใน SQLite"}] },
+                { title: "แสดงจำนวนลูกค้าทั้งหมด", rating: 2, mainProblem: "เขียน SQL เพื่อนับจำนวน<b>ลูกค้า</b>ทั้งหมด", relatedTables: ['Customers'], solution: "SELECT COUNT(*) FROM Customers;", hints: [{text: "ใช้ฟังก์ชัน `COUNT(*)`"}, {text: "`COUNT` เป็น aggregate function"}, {text: "`*` ใน `COUNT` หมายถึงการนับทุกแถว"}, {text: "สามารถใช้ `COUNT(CustomerID)` ได้ผลลัพธ์เหมือนกัน"}, {text: "ผลลัพธ์จะเป็นตารางที่มี 1 แถว 1 คอลัมน์"}] },
+                { title: "แสดงราคาสินค้าเฉลี่ย", rating: 2, mainProblem: "เขียน SQL เพื่อคำนวณ<b>ราคาเฉลี่ย</b>ของสินค้าทั้งหมด", relatedTables: ['Products'], solution: "SELECT AVG(Price) FROM Products;", hints: [{text: "ใช้ฟังก์ชัน `AVG()`"}, {text: "`AVG` ย่อมาจาก Average"}, {text: "ระบุคอลัมน์ที่ต้องการหาค่าเฉลี่ยในวงเล็บ"}, {text: "ในที่นี้คือ `AVG(Price)`"}, {text: "เป็น aggregate function เช่นเดียวกับ `COUNT`"}] },
+                { title: "แสดงยอดรวมจำนวนสินค้าที่สั่ง", rating: 2, mainProblem: "เขียน SQL เพื่อหาผลรวมของ<b>จำนวนสินค้า</b>ทั้งหมดที่เคยมีการสั่งซื้อ", relatedTables: ['OrderDetails'], solution: "SELECT SUM(Quantity) FROM OrderDetails;", hints: [{text: "ใช้ฟังก์ชัน `SUM()`"}, {text: "`SUM` ใช้สำหรับหาผลรวมของคอลัมน์ที่เป็นตัวเลข"}, {text: "ระบุคอลัมน์ที่ต้องการหาผลรวมในวงเล็บ"}, {text: "ในที่นี้คือ `SUM(Quantity)`"}, {text: "ข้อมูลมาจากตาราง `OrderDetails`"}] },
+                { title: "แสดงราคาสินค้าที่แพงที่สุดและถูกที่สุด", rating: 2, mainProblem: "เขียน SQL เพื่อแสดง<b>ราคาสินค้าที่แพงที่สุด</b> และ <b>ถูกที่สุด</b>", relatedTables: ['Products'], solution: "SELECT MAX(Price) AS HighestPrice, MIN(Price) AS LowestPrice FROM Products;", hints: [{text: "ใช้ฟังก์ชัน `MAX()` และ `MIN()`"}, {text: "`MAX` ใช้หาค่าสูงสุด"}, {text: "`MIN` ใช้หาค่าต่ำสุด"}, {text: "สามารถใช้ `AS` เพื่อตั้งชื่อคอลัมน์ผลลัพธ์ได้"}, {text: "ทั้งสองฟังก์ชันสามารถใช้ใน `SELECT` เดียวกันได้"}] },
+                { title: "แสดง 5 สินค้าที่ราคาถูกที่สุด", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b> 5 อันดับแรกที่มีราคาถูกที่สุด", relatedTables: ['Products'], solution: "SELECT * FROM Products ORDER BY Price ASC LIMIT 5;", hints: [{text: "ต้องใช้ `ORDER BY` และ `LIMIT` ร่วมกัน"}, {text: "เรียงข้อมูลตามราคาก่อน"}, {text: "ใช้ `ASC` เพื่อเรียงจากน้อยไปมาก"}, {text: "จากนั้นใช้ `LIMIT 5` เพื่อเอาแค่ 5 แถวแรก"}, {text: "ลำดับคำสั่งสำคัญมาก: `FROM` -> `ORDER BY` -> `LIMIT`"}] },
+                { title: "ค้นหาสินค้าที่ราคาระหว่าง 20 ถึง 30", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่มีราคาอยู่ระหว่าง 20 ถึง 30", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE Price BETWEEN 20 AND 30;", hints: [{text: "ใช้ `BETWEEN ... AND ...`"}, {text: "`BETWEEN` จะรวมค่าขอบเขตทั้งสองด้วย (>= และ <=)"}, {text: "รูปแบบคือ `WHERE Price BETWEEN 20 AND 30`"}, {text: "สามารถเขียนแทนด้วย `WHERE Price >= 20 AND Price <= 30` ได้"}, {text: "เป็นวิธีที่สะดวกสำหรับการกรองข้อมูลตามช่วง"}] },
+                { title: "ค้นหาลูกค้าที่ไม่ได้มาจาก USA หรือ Germany", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>ลูกค้า</b>ทั้งหมดที่ไม่ได้มาจากประเทศ <b>USA</b> หรือ <b>Germany</b>", relatedTables: ['Customers'], solution: "SELECT * FROM Customers WHERE Country NOT IN ('USA', 'Germany');", hints: [{text: "ใช้ `NOT IN`"}, {text: "`IN` ใช้เลือกข้อมูลที่ตรงกับค่าใน list"}, {text: "`NOT IN` ใช้เลือกข้อมูลที่ไม่ตรงกับค่าใน list"}, {text: "รายการประเทศต้องอยู่ในวงเล็บและคั่นด้วยจุลภาค"}, {text: "อย่าลืมครอบชื่อประเทศด้วย single quote"}] },
+                { title: "แสดงชื่อผู้ติดต่อและชื่อเมืองของลูกค้าใน London", rating: 2, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อผู้ติดต่อ</b>และ<b>ชื่อเมือง</b>ของลูกค้าที่อยู่ใน <b>London</b>", relatedTables: ['Customers'], solution: "SELECT ContactName, City FROM Customers WHERE City = 'London';", hints: [{text: "เลือกคอลัมน์ที่ต้องการ"}, {text: "แล้วกรองด้วย `WHERE City = 'London'`"}] },
                 { title: "แสดงสินค้าทั้งหมด ยกเว้นหมวดหมู่ที่ 1", rating: 2, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่ไม่ได้อยู่ใน<b>หมวดหมู่ที่ 1</b>", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE CategoryID != 1;", hints: [{text: "ใช้ `!=` หรือ `<>` ที่แปลว่าไม่เท่ากับ"}] },
-                { title: "แสดงจำนวนคำสั่งซื้อทั้งหมด", rating: 2, mainProblem: "เขียน SQL เพื่อนับจำนวน<b>คำสั่งซื้อ</b>ทั้งหมด", relatedTables: ['Orders'], solution: "SELECT COUNT(OrderID) FROM Orders;", hints: [{text: "ใช้ `COUNT()` กับ Primary Key"}] },
+                { title: "แสดงจำนวนคำสั่งซื้อทั้งหมด", rating: 2, mainProblem: "เขียน SQL เพื่อนับจำนวน<b>คำสั่งซื้อ</b>ทั้งหมด", relatedTables: ['Orders'], solution: "SELECT COUNT(OrderID) FROM Orders;", hints: [{text: "ใช้ `COUNT()` กับ Primary Key (`OrderID`)"}] },
                 { title: "แสดงชื่อพนักงานและเรียงตามนามสกุล", rating: 2, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อ</b>และ<b>นามสกุล</b>ของพนักงาน โดยเรียงตาม<b>นามสกุล</b>จาก A-Z", relatedTables: ['Employees'], solution: "SELECT FirstName, LastName FROM Employees ORDER BY LastName ASC;", hints: [{text: "ใช้ `ORDER BY` กับคอลัมน์ `LastName`"}] },
-                { title: "แสดงสินค้าที่มีคำว่า 'mix' ในชื่อ", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่มีคำว่า <b>mix</b> อยู่ในชื่อ (ไม่สนใจตัวพิมพ์เล็ก/ใหญ่)", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE ProductName LIKE '%mix%';", hints: [{text: "`LIKE` ไม่สนใจตัวพิมพ์เล็ก/ใหญ่ใน SQLite"}, {text:"ใช้ `%` ทั้งสองด้าน"}] },
+                { title: "แสดงสินค้าที่มีคำว่า 'mix' ในชื่อ", rating: 3, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่มีคำว่า <b>mix</b> อยู่ในชื่อ (ไม่สนใจตัวพิมพ์เล็ก/ใหญ่)", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE ProductName LIKE '%mix%';", hints: [{text: "`LIKE` ไม่สนใจตัวพิมพ์เล็ก/ใหญ่ใน SQLite"}, {text:"ใช้ `%` ทั้งสองด้านของคำ"}] },
                 { title: "แสดงข้อมูลลูกค้าจาก Berlin และเรียงตามชื่อ", rating: 2, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>ลูกค้า</b>ที่มาจาก <b>Berlin</b> และเรียงตาม<b>ชื่อลูกค้า</b>", relatedTables: ['Customers'], solution: "SELECT * FROM Customers WHERE City = 'Berlin' ORDER BY CustomerName;", hints: [{text: "ใช้ `WHERE` และ `ORDER BY` ร่วมกัน"}] },
-                { title: "แสดงจำนวนประเทศที่ไม่ซ้ำกันของผู้จัดจำหน่าย", rating: 2, mainProblem: "เขียน SQL เพื่อแสดงจำนวน<b>ประเทศ</b>ที่ไม่ซ้ำกันของ<b>ผู้จัดจำหน่าย</b>", relatedTables: ['Suppliers'], solution: "SELECT COUNT(DISTINCT Country) FROM Suppliers;", hints: [{text: "ใช้ `COUNT` ร่วมกับ `DISTINCT`"}] },
-                { title: "แสดงคำสั่งซื้อที่เกิดขึ้นในปี 1996", rating: 3, mainProblem: "เขียน SQL เพื่อแสดง<b>คำสั่งซื้อ</b>ทั้งหมดที่เกิดขึ้นในปี <b>1996</b>", relatedTables: ['Orders'], solution: "SELECT * FROM Orders WHERE OrderDate LIKE '1996%';", hints: [{text: "ใช้ `LIKE` กับคอลัมน์วันที่"}, {text:"รูปแบบคือ 'YYYY%'"}] },
-                { title: "แสดงสินค้าในหมวดหมู่ 1 และ 2", rating: 2, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่อยู่ใน<b>หมวดหมู่ที่ 1</b> หรือ <b>หมวดหมู่ที่ 2</b>", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE CategoryID IN (1, 2);", hints: [{text: "ใช้ `IN` เพื่อระบุรายการของค่า"}] },
+                { title: "แสดงจำนวนประเทศที่ไม่ซ้ำกันของผู้จัดจำหน่าย", rating: 2, mainProblem: "เขียน SQL เพื่อแสดงจำนวน<b>ประเทศ</b>ที่ไม่ซ้ำกันของ<b>ผู้จัดจำหน่าย</b>", relatedTables: ['Suppliers'], solution: "SELECT COUNT(DISTINCT Country) FROM Suppliers;", hints: [{text: "ใช้ `COUNT` ร่วมกับ `DISTINCT` ภายในวงเล็บ"}] },
+                { title: "แสดงคำสั่งซื้อที่เกิดขึ้นในปี 1996", rating: 3, mainProblem: "เขียน SQL เพื่อแสดง<b>คำสั่งซื้อ</b>ทั้งหมดที่เกิดขึ้นในปี <b>1996</b>", relatedTables: ['Orders'], solution: "SELECT * FROM Orders WHERE OrderDate LIKE '1996%';", hints: [{text: "ใช้ `LIKE` กับคอลัมน์วันที่"}, {text:"รูปแบบคือ `LIKE 'YYYY%'`"}] },
+                { title: "แสดงสินค้าในหมวดหมู่ 1 และ 2", rating: 2, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>สินค้า</b>ทั้งหมดที่อยู่ใน<b>หมวดหมู่ที่ 1</b> หรือ <b>หมวดหมู่ที่ 2</b>", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE CategoryID IN (1, 2);", hints: [{text: "ใช้ `IN` เพื่อระบุรายการของค่าที่ต้องการ"}] },
                 { title: "แสดงพนักงานที่ไม่ใช่ Nancy", rating: 2, mainProblem: "เขียน SQL เพื่อแสดงข้อมูล<b>พนักงาน</b>ทุกคนที่ไม่ใช่ <b>Nancy</b>", relatedTables: ['Employees'], solution: "SELECT * FROM Employees WHERE FirstName != 'Nancy';", hints: [{text: "ใช้ `!=` กับข้อความ"}] },
                 { title: "แสดงคำสั่งซื้อของลูกค้ารหัสที่ 1 ถึง 5", rating: 3, mainProblem: "เขียน SQL เพื่อแสดง<b>คำสั่งซื้อ</b>ทั้งหมดของ<b>ลูกค้ารหัสที่ 1 ถึง 5</b>", relatedTables: ['Orders'], solution: "SELECT * FROM Orders WHERE CustomerID BETWEEN 1 AND 5;", hints: [{text: "ใช้ `BETWEEN 1 AND 5`"}] },
             ],
             // Level 3: Advanced (20 problems)
             [
-                { title: "แสดงชื่อสินค้าพร้อมชื่อหมวดหมู่", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อสินค้า</b> และ <b>ชื่อหมวดหมู่</b>", relatedTables: ['Products', 'Categories'], solution: "SELECT T1.ProductName, T2.CategoryName FROM Products AS T1 JOIN Categories AS T2 ON T1.CategoryID = T2.CategoryID;", hints: [{text:"ใช้ `JOIN` เพื่อรวมตาราง"}, {text:"ระบุเงื่อนไขการเชื่อมด้วย `ON`"}] },
+                { title: "แสดงชื่อสินค้าพร้อมชื่อหมวดหมู่", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อสินค้า</b> และ <b>ชื่อหมวดหมู่</b>", relatedTables: ['Products', 'Categories'], solution: "SELECT T1.ProductName, T2.CategoryName FROM Products AS T1 JOIN Categories AS T2 ON T1.CategoryID = T2.CategoryID;", hints: [{text:"ใช้ `JOIN` เพื่อรวมตาราง"}, {text:"ระบุเงื่อนไขการเชื่อมด้วย `ON`"}, {text:"เชื่อมตาราง `Products` และ `Categories`"}, {text:"คอลัมน์ที่ใช้เชื่อมคือ `CategoryID`"}, {text:"ใช้ Alias (AS) ช่วยให้อ่านง่ายขึ้น"}] },
                 { title: "แสดงชื่อสินค้าและชื่อผู้จัดจำหน่าย", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อสินค้า</b> และ<b>ชื่อผู้จัดจำหน่าย</b>ของสินค้านั้นๆ", relatedTables: ['Products', 'Suppliers'], solution: "SELECT P.ProductName, S.SupplierName FROM Products AS P JOIN Suppliers AS S ON P.SupplierID = S.SupplierID;", hints: [{text:"JOIN ตาราง `Products` และ `Suppliers`"}, {text:"เชื่อมด้วย `SupplierID`"}] },
                 { title: "แสดงคำสั่งซื้อพร้อมชื่อลูกค้า", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>รหัสคำสั่งซื้อ</b> พร้อมกับ<b>ชื่อลูกค้า</b>เจ้าของคำสั่งซื้อ", relatedTables: ['Orders', 'Customers'], solution: "SELECT O.OrderID, C.CustomerName FROM Orders AS O JOIN Customers AS C ON O.CustomerID = C.CustomerID;", hints: [{text:"JOIN ตาราง `Orders` และ `Customers`"}, {text:"เชื่อมด้วย `CustomerID`"}] },
-                { title: "นับจำนวนสินค้าในแต่ละหมวดหมู่", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อหมวดหมู่</b> และ <b>จำนวนสินค้าทั้งหมด</b> ในแต่ละหมวดหมู่", relatedTables: ['Products', 'Categories'], solution: "SELECT T2.CategoryName, COUNT(T1.ProductID) AS NumberOfProducts FROM Products AS T1 JOIN Categories AS T2 ON T1.CategoryID = T2.CategoryID GROUP BY T2.CategoryName;", hints: [{text:"ใช้ `COUNT()` และ `GROUP BY`"}, {text:"ต้อง `JOIN` สองตารางก่อน"}] },
-                { title: "คำนวณยอดขายรวมของแต่ละ Order", rating: 5, mainProblem: "เขียน SQL เพื่อแสดง<b>รหัสคำสั่งซื้อ</b> และ <b>ยอดขายรวม</b> ของแต่ละคำสั่งซื้อ", relatedTables: ['OrderDetails', 'Products'], solution: "SELECT T1.OrderID, SUM(T1.Quantity * T2.Price) AS TotalSale FROM OrderDetails AS T1 JOIN Products AS T2 ON T1.ProductID = T2.ProductID GROUP BY T1.OrderID;", hints: [{text:"ยอดขายรวมคือ `Quantity * Price`"}, {text: "ใช้ `SUM()` และ `GROUP BY`"}] },
-                { title: "แสดงจำนวนลูกค้าในแต่ละประเทศ", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อประเทศ</b> และ <b>จำนวนลูกค้า</b>ในแต่ละประเทศ", relatedTables: ['Customers'], solution: "SELECT Country, COUNT(CustomerID) AS CustomerCount FROM Customers GROUP BY Country;", hints: [{text: "ใช้ `COUNT()` และ `GROUP BY Country`"}] },
-                { title: "ค้นหาลูกค้าที่มี Order มากกว่า 1 รายการ", rating: 5, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อลูกค้า</b> ที่มีคำสั่งซื้อมากกว่า 1 รายการ", relatedTables: ['Customers', 'Orders'], solution: "SELECT T1.CustomerName FROM Customers AS T1 JOIN Orders AS T2 ON T1.CustomerID = T2.CustomerID GROUP BY T1.CustomerName HAVING COUNT(T2.OrderID) > 1;", hints: [{text:"ใช้ `COUNT` และ `GROUP BY`"}, {text:"ใช้ `HAVING` เพื่อกรองผลลัพธ์หลังจัดกลุ่ม"}] },
+                { title: "นับจำนวนสินค้าในแต่ละหมวดหมู่", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อหมวดหมู่</b> และ <b>จำนวนสินค้าทั้งหมด</b> ในแต่ละหมวดหมู่", relatedTables: ['Products', 'Categories'], solution: "SELECT T2.CategoryName, COUNT(T1.ProductID) AS NumberOfProducts FROM Products AS T1 JOIN Categories AS T2 ON T1.CategoryID = T2.CategoryID GROUP BY T2.CategoryName;", hints: [{text:"ใช้ `COUNT()` และ `GROUP BY`"}, {text:"ต้อง `JOIN` สองตารางก่อน"}, {text:"จัดกลุ่มด้วย `GROUP BY CategoryName`"}, {text:"นับจำนวนด้วย `COUNT(ProductID)`"}] },
+                { title: "คำนวณยอดขายรวมของแต่ละ Order", rating: 5, mainProblem: "เขียน SQL เพื่อแสดง<b>รหัสคำสั่งซื้อ</b> และ <b>ยอดขายรวม</b> ของแต่ละคำสั่งซื้อ", relatedTables: ['OrderDetails', 'Products'], solution: "SELECT T1.OrderID, SUM(T1.Quantity * T2.Price) AS TotalSale FROM OrderDetails AS T1 JOIN Products AS T2 ON T1.ProductID = T2.ProductID GROUP BY T1.OrderID;", hints: [{text:"ยอดขายรวมคือ `Quantity * Price`"}, {text: "ใช้ `SUM()` และ `GROUP BY`"}, {text: "ต้อง JOIN ตาราง `OrderDetails` และ `Products`"}, {text: "เชื่อมด้วย `ProductID`"}, {text: "จัดกลุ่มด้วย `GROUP BY OrderID`"}] },
+                { title: "แสดงจำนวนลูกค้าในแต่ละประเทศ", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อประเทศ</b> และ <b>จำนวนลูกค้า</b>ในแต่ละประเทศ", relatedTables: ['Customers'], solution: "SELECT Country, COUNT(CustomerID) AS CustomerCount FROM Customers GROUP BY Country;", hints: [{text: "ใช้ `COUNT()` และ `GROUP BY Country`"}, {text:"ไม่ต้อง JOIN ตาราง"}] },
+                { title: "ค้นหาลูกค้าที่มี Order มากกว่า 1 รายการ", rating: 5, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อลูกค้า</b> ที่มีคำสั่งซื้อมากกว่า 1 รายการ", relatedTables: ['Customers', 'Orders'], solution: "SELECT T1.CustomerName FROM Customers AS T1 JOIN Orders AS T2 ON T1.CustomerID = T2.CustomerID GROUP BY T1.CustomerName HAVING COUNT(T2.OrderID) > 1;", hints: [{text:"ใช้ `COUNT` และ `GROUP BY`"}, {text:"ใช้ `HAVING` เพื่อกรองผลลัพธ์หลังจัดกลุ่ม"}, {text:"`WHERE` ใช้กรองก่อน `GROUP BY`"}, {text:"`HAVING` ใช้กรองหลัง `GROUP BY`"}] },
                 { title: "แสดงราคาสินค้าเฉลี่ยในแต่ละหมวดหมู่", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อหมวดหมู่</b> และ<b>ราคาสินค้าเฉลี่ย</b>ในหมวดหมู่นั้นๆ", relatedTables: ['Products', 'Categories'], solution: "SELECT C.CategoryName, AVG(P.Price) AS AveragePrice FROM Products AS P JOIN Categories AS C ON P.CategoryID = C.CategoryID GROUP BY C.CategoryName;", hints: [{text:"ใช้ `AVG()` และ `GROUP BY`"}] },
-                { title: "แสดงชื่อลูกค้าและชื่อพนักงานที่รับ Order", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>รหัสคำสั่งซื้อ</b>, <b>ชื่อลูกค้า</b>, และ<b>ชื่อพนักงาน</b>ที่รับผิดชอบแต่ละคำสั่งซื้อ", relatedTables: ['Orders', 'Customers', 'Employees'], solution: "SELECT O.OrderID, C.CustomerName, E.FirstName FROM Orders AS O JOIN Customers AS C ON O.CustomerID = C.CustomerID JOIN Employees AS E ON O.EmployeeID = E.EmployeeID;", hints: [{text:"ต้อง JOIN 3 ตารางเข้าด้วยกัน"}] },
+                { title: "แสดงชื่อลูกค้าและชื่อพนักงานที่รับ Order", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>รหัสคำสั่งซื้อ</b>, <b>ชื่อลูกค้า</b>, และ<b>ชื่อพนักงาน</b>ที่รับผิดชอบแต่ละคำสั่งซื้อ", relatedTables: ['Orders', 'Customers', 'Employees'], solution: "SELECT O.OrderID, C.CustomerName, E.FirstName FROM Orders AS O JOIN Customers AS C ON O.CustomerID = C.CustomerID JOIN Employees AS E ON O.EmployeeID = E.EmployeeID;", hints: [{text:"ต้อง JOIN 3 ตารางเข้าด้วยกัน"}, {text:"`Orders` -> `Customers`"}, {text:"`Orders` -> `Employees`"}] },
                 { title: "แสดงยอดขายรวมของพนักงานแต่ละคน", rating: 5, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อพนักงาน</b> และ<b>ยอดขายรวม</b>ที่พนักงานคนนั้นทำได้", relatedTables: ['Orders', 'OrderDetails', 'Products', 'Employees'], solution: "SELECT E.FirstName, SUM(OD.Quantity * P.Price) AS TotalSales FROM Orders O JOIN OrderDetails OD ON O.OrderID = OD.OrderID JOIN Products P ON OD.ProductID = P.ProductID JOIN Employees E ON O.EmployeeID = E.EmployeeID GROUP BY E.EmployeeID;", hints: [{text:"ต้อง JOIN 4 ตาราง"}, {text:"ใช้ `SUM` และ `GROUP BY` พนักงาน"}] },
-                { title: "แสดงสินค้าที่มีราคาสูงกว่าราคาสินค้าเฉลี่ย", rating: 5, mainProblem: "เขียน SQL เพื่อแสดง<b>สินค้า</b>ทั้งหมดที่มีราคาสูงกว่า<b>ราคาสินค้าเฉลี่ย</b>ของสินค้าทั้งหมด", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE Price > (SELECT AVG(Price) FROM Products);", hints: [{text:"ต้องใช้ Subquery"}, {text:"Query ย่อยคือ `SELECT AVG(Price) FROM Products`"}] },
+                { title: "แสดงสินค้าที่มีราคาสูงกว่าราคาสินค้าเฉลี่ย", rating: 5, mainProblem: "เขียน SQL เพื่อแสดง<b>สินค้า</b>ทั้งหมดที่มีราคาสูงกว่า<b>ราคาสินค้าเฉลี่ย</b>ของสินค้าทั้งหมด", relatedTables: ['Products'], solution: "SELECT * FROM Products WHERE Price > (SELECT AVG(Price) FROM Products);", hints: [{text:"ต้องใช้ Subquery (Query ซ้อน Query)"}, {text:"Query ย่อยคือ `SELECT AVG(Price) FROM Products`"}, {text:"นำผลลัพธ์ของ Query ย่อยไปใช้ใน `WHERE` ของ Query หลัก"}] },
                 { title: "แสดงชื่อผู้จัดจำหน่ายของสินค้า 'Chai'", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อผู้จัดจำหน่าย</b>ของสินค้าชื่อ <b>Chai</b>", relatedTables: ['Products', 'Suppliers'], solution: "SELECT S.SupplierName FROM Suppliers AS S JOIN Products AS P ON S.SupplierID = P.SupplierID WHERE P.ProductName = 'Chai';", hints: [{text:"JOIN สองตารางแล้วใช้ `WHERE` กรอง"}] },
                 { title: "แสดงหมวดหมู่ที่มีสินค้ามากกว่า 5 ชนิด", rating: 5, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อหมวดหมู่</b>ที่มีสินค้าในหมวดหมู่นั้นๆ มากกว่า 5 ชนิด", relatedTables: ['Categories', 'Products'], solution: "SELECT C.CategoryName FROM Categories C JOIN Products P ON C.CategoryID = P.CategoryID GROUP BY C.CategoryName HAVING COUNT(P.ProductID) > 5;", hints: [{text:"ใช้ `HAVING COUNT(...) > 5`"}] },
                 { title: "แสดงรายละเอียดสินค้าในคำสั่งซื้อรหัส 10248", rating: 4, mainProblem: "เขียน SQL เพื่อแสดง<b>ชื่อสินค้า</b> และ <b>จำนวน</b> ของสินค้าทุกรายการใน<b>คำสั่งซื้อรหัส 10248</b>", relatedTables: ['OrderDetails', 'Products'], solution: "SELECT P.ProductName, OD.Quantity FROM OrderDetails OD JOIN Products P ON OD.ProductID = P.ProductID WHERE OD.OrderID = 10248;", hints: [{text:"JOIN สองตารางแล้วกรองด้วย `WHERE OrderID = 10248`"}] },
@@ -296,7 +323,7 @@
                 db = new SQL.Database();
                 db.run(northwindSql);
                 dbLoader.style.display = 'none';
-                problemContent.innerHTML = `<div class="text-center bg-gray-800 p-10 rounded-xl"><h2 class="text-3xl font-bold text-white mb-4">ยินดีต้อนรับ!</h2><p class="text-xl text-gray-300">กรุณาเลือกระดับความยากของโจทย์จากเมนูด้านบน</p></div>`;
+                problemContent.innerHTML = `<div class="text-center card p-10 rounded-xl"><h2 class="text-3xl font-bold header-text mb-4">ยินดีต้อนรับ!</h2><p class="text-xl subheader-text">กรุณาเลือกระดับความยากของโจทย์จากเมนูด้านบน</p></div>`;
             } catch (error) {
                 dbLoader.innerHTML = `<p class="text-red-500">เกิดข้อผิดพลาดในการโหลดฐานข้อมูล!</p>`;
                 console.error("Database loading error:", error);
@@ -318,7 +345,7 @@
             newContent.getElementById('main-problem-text').innerHTML = problem.mainProblem;
             
             const ratingContainer = newContent.getElementById('rating-container');
-            ratingContainer.innerHTML = `<span class="font-semibold text-gray-400">Rating:</span>`;
+            ratingContainer.innerHTML = `<span class="font-semibold subheader-text">Rating:</span>`;
             for(let i = 0; i < 5; i++) {
                 ratingContainer.innerHTML += `<span class="${i < problem.rating ? 'rating-star' : 'text-gray-600'}">★</span>`;
             }
@@ -326,9 +353,9 @@
             const schemaAccordion = newContent.getElementById('schema-accordion');
             problem.relatedTables.forEach(tableName => {
                 const details = document.createElement('details');
-                details.className = 'bg-gray-900/50 p-3 rounded-lg';
+                details.className = 'p-3 rounded-lg accordion-item';
                 const summary = document.createElement('summary');
-                summary.className = 'cursor-pointer font-semibold text-white';
+                summary.className = 'cursor-pointer font-semibold accordion-summary';
                 summary.textContent = `ตาราง ${tableName}`;
                 const tableDiv = document.createElement('div');
                 tableDiv.className = 'mt-2 text-sm pl-4';
@@ -351,7 +378,7 @@
             const hintsContainer = newContent.getElementById('hintsContainer');
             problem.hints.forEach((hint) => {
                 const hintDiv = document.createElement('div');
-                hintDiv.className = `hint-content hidden bg-gray-900/50 p-4 rounded-lg`;
+                hintDiv.className = `hint-content hidden p-4 rounded-lg accordion-item`;
                 hintDiv.innerHTML = `<p>${hint.text}</p>`;
                 hintsContainer.appendChild(hintDiv);
             });
@@ -409,20 +436,20 @@
         
         function runQueryAndDisplay(query, targetElement) {
             if (!query) {
-                targetElement.innerHTML = `<p class="p-4 text-gray-400">กรุณาพิมพ์ Query...</p>`;
+                targetElement.innerHTML = `<p class="p-4 subheader-text">กรุณาพิมพ์ Query...</p>`;
                 return;
             }
             try {
                 const results = db.exec(query);
                 targetElement.innerHTML = formatResultsToTable(results);
             } catch (e) {
-                targetElement.innerHTML = `<div class="p-4 text-red-400 bg-red-900/50 rounded-lg"><b>Error:</b> ${e.message}</div>`;
+                targetElement.innerHTML = `<div class="p-4 text-red-500 bg-red-100 rounded-lg"><b>Error:</b> ${e.message}</div>`;
             }
         }
 
         function formatResultsToTable(results) {
             if (!results || results.length === 0) {
-                return '<p class="p-4 text-gray-400">Query executed successfully, but returned no results.</p>';
+                return '<p class="p-4 subheader-text">Query executed successfully, but returned no results.</p>';
             }
             let html = '<table class="results-table">';
             html += '<thead><tr>';
@@ -457,6 +484,29 @@
             return highlighted;
         }
 
+        const themeToggle = document.getElementById('theme-toggle');
+        const lightIcon = document.getElementById('theme-icon-light');
+        const darkIcon = document.getElementById('theme-icon-dark');
+        
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light');
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+            } else {
+                document.body.classList.remove('light');
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+
         levelNavButtons.forEach((btn, idx) => {
             btn.addEventListener('click', () => switchLevel(idx));
         });
@@ -475,7 +525,11 @@
             }
         });
 
-        window.addEventListener('load', initDatabase);
+        window.addEventListener('load', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
+            initDatabase();
+        });
 
     </script>
 </body>
